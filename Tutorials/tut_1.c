@@ -1,14 +1,20 @@
 #include <stdio.h>
 
-float *nums;
-int a_size = 2000000;
-int idx;
-
-int main(void)
+typedef struct student_info
 {
-    printf("Read how many numbers:");
-    scanf("%d", &a_size);
-    nums = (float *)calloc(a_size, sizeof(float));
+    char name[40];
+    int student_id;
+    int age;
+} StudentInfo;
+void print_student(StudentInfo *s)
+{
+    printf("Name: %s\n", s->name);
+    printf("Student ID: %d\n", s->student_id);
+    printf("Age: %d\n", s->age);
+}
 
-    return 0;
+int main(voiud)
+{
+    StudentInfo s1 = {"John", 12345, 20};
+    print_student(&s1);
 }
