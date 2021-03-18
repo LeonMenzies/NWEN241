@@ -113,11 +113,6 @@ found:
             editing_buffer[i] = editing_buffer[i + moveBy];
         }
     }
-    for (int f = 0; f < editing_buflen; f++)
-    {
-        printf("%c", editing_buffer[f]);
-    }
-    printf("\n");
 
     //Insert the word
     for (int i = 0; i < replacementLength; i++)
@@ -125,10 +120,11 @@ found:
         editing_buffer[wordPoint + i] = replacement[i];
     }
 
-    editing_buffer[editing_buflen] = '\0';
+    //Insert a null charactor to end the string
+    editing_buffer[editing_buflen - 1] = '\0';
 
     //Return = if the replacement was to long else return the final replaced char
-    if (wordPoint + replacementLength - 1 > editing_buflen)
+    if (wordPoint + replacementLength > editing_buflen - 1)
     {
         return -1;
     }
