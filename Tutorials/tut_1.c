@@ -1,11 +1,6 @@
 #include <stdio.h>
+#include "stud.h"
 
-typedef struct student_info
-{
-    char name[40];
-    int student_id;
-    int age;
-} StudentInfo;
 void print_student(StudentInfo *s)
 {
     printf("Name: %s\n", s->name);
@@ -13,8 +8,12 @@ void print_student(StudentInfo *s)
     printf("Age: %d\n", s->age);
 }
 
-int main(voiud)
+int main(void)
 {
+    for (int i = 0; i < 9999999999; i++)
+    {
+        printf("THIS IS BORING\n");
+    }
     StudentInfo s1 = {"John", 12345, 20};
     print_student(&s1);
 }
