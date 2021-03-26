@@ -113,3 +113,78 @@ int db_show_row(const struct db_table *db, unsigned int row)
 
     return 1;
 }
+
+int db_add_row(struct db_table *db, struct album *a)
+{
+
+    //If there is room for the album add to the end of the table
+    if (db->rows_used < db->rows_total)
+    {
+        db->table[db->rows_used] = *a;
+        db->rows_used += 1;
+    }
+    else
+    {
+        //Reallocate 5 * the size of an album to the table location
+        db->table = realloc(db->table, 5 * sizeof(db->table));
+
+        //If memory allocation fails
+        if (db->table == NULL)
+        {
+            return 0;
+        }
+
+        db->rows_total += 5;
+
+        //Add
+        db->table[db->rows_used] = *a;
+        db->rows_used += 1;
+    }
+
+    return 1;
+}
+
+int db_remove_row(struct db_table *db, unsigned long id)
+{
+    // Boolean for the found id
+    int found = 0;
+
+    for (int i = 0; i < db->rows_used; i++)
+    {
+        // Check each id
+        if (db->table[i].id == id && found == 0)
+        {
+            found = 1;
+        }
+
+        //If found shuffle each album up
+        if (found == 1)
+        {
+            db->table[i] = db->table[i + 1];
+        }
+    }
+    if (found == 1)
+    {
+        db->rows_used -= 1;
+    }
+
+    //Check for more than 5 empty rows
+    if (db->rows_total - db->rows_used >= 5)
+    {
+        printf("BEFORE: %d\n", sizeof(db));
+
+        db->table = realloc(db->table, (db->rows_total - 5) * sizeof(db->table));
+
+        //Check for failure
+        if (db == NULL)
+        {
+            return 0;
+        }
+
+        db->rows_total -= 5;
+
+        printf("After: %d\n", sizeof(db));
+    }
+
+    return 1;
+}
