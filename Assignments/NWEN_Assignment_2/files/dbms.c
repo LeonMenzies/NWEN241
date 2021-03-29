@@ -126,7 +126,7 @@ int db_add_row(struct db_table *db, struct album *a)
     else
     {
         //Reallocate 5 * the size of an album to the table location
-        db->table = realloc(db->table, 5 * sizeof(db->table));
+        db->table = realloc(db->table, (db->rows_total + 5) * sizeof(db->table));
 
         //If memory allocation fails
         if (db->table == NULL)
@@ -171,8 +171,6 @@ int db_remove_row(struct db_table *db, unsigned long id)
     //Check for more than 5 empty rows
     if (db->rows_total - db->rows_used >= 5)
     {
-        printf("BEFORE: %d\n", sizeof(db));
-
         db->table = realloc(db->table, (db->rows_total - 5) * sizeof(db->table));
 
         //Check for failure
@@ -182,8 +180,6 @@ int db_remove_row(struct db_table *db, unsigned long id)
         }
 
         db->rows_total -= 5;
-
-        printf("After: %d\n", sizeof(db));
     }
 
     return 1;
