@@ -3,8 +3,8 @@
 #include "dbms.h"
 
 int db_show_row(const struct db_table *db, unsigned int row)
-
 {
+
     struct album t = db->table[row];
 
     if (row < 0 || row > db->rows_used)
@@ -13,12 +13,20 @@ int db_show_row(const struct db_table *db, unsigned int row)
     }
 
     //Print ID with padding
+
     int add = 6 - sizeof(t.id) / sizeof(int);
-    for (int i = 0; i < add; i++)
+    if (add < 0)
     {
-        printf(" ");
+        printf("%.6lu:", t.id);
     }
-    printf("%lu:", t.id);
+    else
+    {
+        for (int i = 0; i < add; i++)
+        {
+            printf(" ");
+        }
+        printf("%lu:", t.id);
+    }
 
     /*
     * Print Title for 20 elements
@@ -108,7 +116,8 @@ int db_show_row(const struct db_table *db, unsigned int row)
     /*
     * Print year
     */
-    printf(":%d\n", t.year);
+
+    printf(":%.4d\n", t.year);
     printf("\n");
 
     return 1;

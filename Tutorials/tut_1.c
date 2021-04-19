@@ -1,31 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    int size;
-    int *array;
-
-    printf("Enter number of items: ");
-    scanf("%d", &size);
-
-    array = (int *)malloc(size * sizeof(int));
-
-    if (array == NULL)
+    if (argc == 3)
     {
-        printf("You fucked up\n");
-        return 0;
+        int a, b;
+
+        sscanf(argv[1], "%d", &a);
+        sscanf(argv[2], "%d", &b);
+
+        printf("Sum: %d\n", a + b);
     }
-
-    for (int i = 0; i < size; i++)
+    else
     {
-        printf("%d: ", i);
-        scanf("%d", &array[i]);
-    }
-
-    for (int i = 0; i < size; i++)
-    {
-        printf("%d: ", array[i]);
+        printf("Requires 2 nums\n");
     }
 
     return 0;
