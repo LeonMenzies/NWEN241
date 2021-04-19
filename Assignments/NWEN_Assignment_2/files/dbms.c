@@ -1,31 +1,39 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "dbms.h"
 
 int db_show_row(const struct db_table *db, unsigned int row)
 {
+    //Pull the rable and store it for easier use
+    struct album table = db->table[row];
 
-    struct album t = db->table[row];
-
+    //Check if the row is in the table otherwise return
     if (row < 0 || row > db->rows_used)
     {
         return 0;
     }
 
-    //Print ID with padding
+    //Storage for integer values
+    char year[5];
+    char ID[7];
 
-    int add = 6 - sizeof(t.id) / sizeof(int);
-    if (add < 0)
+    //Converts integers into char form for printing
+    snprintf(year, 5, "%d", db->table[row].year);
+    snprintf(ID, 7, "%lu", db->table[row].id);
+
+    //Print ID with padding if its shorter than 6
+    if (strlen(ID) < 6)
     {
-        printf("%.6lu:", t.id);
-    }
-    else
-    {
-        for (int i = 0; i < add; i++)
+        for (int i = 0; i < 6 - strlen(ID); i++)
         {
             printf(" ");
         }
-        printf("%lu:", t.id);
+        printf("%s:", ID);
+    }
+    else
+    {
+        printf("%s:", ID);
     }
 
     /*
@@ -34,9 +42,9 @@ int db_show_row(const struct db_table *db, unsigned int row)
     int titleLength;
 
     //Iterate through the title until the null charactor to find the length
-    for (int i = 0; i < sizeof(t.title) / sizeof(char); i++)
+    for (int i = 0; i < sizeof(table.title) / sizeof(char); i++)
     {
-        if (t.title[i] == '\0')
+        if (table.title[i] == '\0')
         {
             titleLength = i;
             break;
@@ -57,7 +65,7 @@ int db_show_row(const struct db_table *db, unsigned int row)
             }
             else
             {
-                printf("%c", t.title[i - titlePad]);
+                printf("%c", table.title[i - titlePad]);
             }
         }
     }
@@ -67,7 +75,7 @@ int db_show_row(const struct db_table *db, unsigned int row)
         int count = 0;
         while (count < 20)
         {
-            printf("%c", t.title[count]);
+            printf("%c", table.title[count]);
             count++;
         }
     }
@@ -78,15 +86,16 @@ int db_show_row(const struct db_table *db, unsigned int row)
     */
     int artistLength;
 
-    for (int i = 0; i < sizeof(t.artist) / sizeof(char); i++)
+    for (int i = 0; i < sizeof(table.artist) / sizeof(char); i++)
     {
-        if (t.artist[i] == '\0')
+        if (table.artist[i] == '\0')
         {
             artistLength = i;
             break;
         }
     }
 
+    //Find the padding for the artist
     int artistPad = 20 - artistLength;
 
     if (artistPad > 0)
@@ -99,7 +108,7 @@ int db_show_row(const struct db_table *db, unsigned int row)
             }
             else
             {
-                printf("%c", t.artist[i - artistPad]);
+                printf("%c", table.artist[i - artistPad]);
             }
         }
     }
@@ -108,7 +117,7 @@ int db_show_row(const struct db_table *db, unsigned int row)
         int count = 0;
         while (count < 20)
         {
-            printf("%c", t.artist[count]);
+            printf("%c", table.artist[count]);
             count++;
         }
     }
@@ -117,8 +126,18 @@ int db_show_row(const struct db_table *db, unsigned int row)
     * Print year
     */
 
-    printf(":%.4d\n", t.year);
-    printf("\n");
+    if (strlen(year) < 4)
+    {
+        printf(":%s\n", year);
+        for (int i = 0; i < 4 - strlen(year); i++)
+        {
+            printf(" ");
+        }
+    }
+    else
+    {
+        printf(":%s\n", year);
+    }
 
     return 1;
 }
