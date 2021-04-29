@@ -31,6 +31,9 @@
  * design specifications.
  */
 void read_write(int sock);
+/*
+* Method for printing erros
+*/
 void error(const char *msg)
 {
     printf("Error: %s\n", msg);
@@ -65,11 +68,13 @@ int main(int argc, char *argv[])
         printf("Socket succesfully created\n");
     }
 
+    //Create a struct for server information
     struct sockaddr_in serv_addr;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(port);
 
+    //Bind the socket
     int br = bind(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
     if (br < 0)
     {
@@ -115,6 +120,10 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/*
+* This function is used for continuously reading and wrtting to and from
+* the connected client 
+*/
 void read_write(int sock)
 {
     /* 4. Send message to client*/
@@ -126,7 +135,8 @@ void read_write(int sock)
     //Fields
     int write_to_file = 0; //Boolean to check if in file write mode
     int found_closer = 0;  //Check for 2 consecutive \n charactors
-    FILE *to_send;
+
+    FILE *to_send; //files for reading and writting
     FILE *to_write;
 
     //infinite loop for chatting
@@ -162,6 +172,7 @@ void read_write(int sock)
                 found_closer = 0;
             }
 
+            //Print buffer line to the text file
             fprintf(to_write, "%s", buffer);
         }
 
