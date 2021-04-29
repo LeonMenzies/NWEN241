@@ -124,7 +124,8 @@ void read_write(int sock)
     char buffer[MAX];
 
     //Fields
-    int write_to_file = 0;
+    int write_to_file = 0; //Boolean to check if in file write mode
+    int found_closer = 0;  //Check for 2 consecutive \n charactors
     FILE *to_send;
     FILE *to_write;
 
@@ -140,29 +141,43 @@ void read_write(int sock)
         //if files should be written to the file
         if (write_to_file == 1)
         {
-            for (int i = 0; i < strlen(buffer); i++)
+            //Check for a newline charactor
+            if (strlen(buffer) == 1 & buffer[0] == '\n')
             {
-                if (strlen(buffer) == 1 & buffer[i] == '\n')
+                //If its the forst one increase found_closer
+                if (found_closer == 0)
+                {
+                    found_closer = 1;
+                }
+                //If its the second one close the file
+                else if (found_closer == 1)
                 {
                     write_to_file = 0;
                     fclose(to_write);
-                    break;
+                    strcat(buffer, "SERVER 200 Created\n");
                 }
-                fputc(buffer[i], to_write);
             }
+            else
+            {
+                found_closer = 0;
+            }
+
+            fprintf(to_write, "%s", buffer);
         }
 
-        /* 6.a.b Perform taks depending on the input from the client*/
+        /* 6.a.b Perform tasks depending on the input from the client*/
         if (strncmp("BYE", buffer, 3) == 0)
         {
             printf("Closing server\n");
+            //Close any open files
+            fclose(to_write);
+            fclose(to_send);
             return;
         }
         else if (strncmp("GET", buffer, 3) == 0)
         {
 
             char c;
-            int count = 0;
             char file_name[MAX];
 
             //Iterate from from the start of the filename
@@ -196,13 +211,14 @@ void read_write(int sock)
                     count_to_send++;
                 }
                 strcat(buffer, "\n\n");
+                //Close file
+                fclose(to_send);
             }
         }
         /* 6.c Write to a file */
         else if (strncmp("PUT", buffer, 3) == 0)
         {
             char c;
-            int count = 0;
             char file_write_name[MAX];
 
             //Iterate from from the start of the filename
