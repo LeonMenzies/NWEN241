@@ -20,7 +20,7 @@
 // Include necessary header files
 
 //Constants
-#define MAX 100
+#define MAX 1000
 
 /**
  * The main function should be able to accept a command-line argument
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            printf("Succesfully accept\n");
+            printf("Client connected\n");
         }
 
         /* Function for read/write to client*/
@@ -123,6 +123,11 @@ void read_write(int sock)
     //Create a buffer
     char buffer[MAX];
 
+    //Fields
+    int write_to_file = 0;
+    FILE *to_send;
+    FILE *to_write;
+
     //infinite loop for chatting
     while (1)
     {
@@ -130,38 +135,48 @@ void read_write(int sock)
 
         /* 5. Read messages from the client*/
         read(sock, buffer, sizeof(buffer));
-        printf("From client: %s\n", buffer);
+        printf("From client: %s", buffer);
 
-        /* 6. Perform taks depending on the input from the client*/
+        //if files should be written to the file
+        if (write_to_file == 1)
+        {
+            for (int i = 0; i < strlen(buffer); i++)
+            {
+                if (strlen(buffer) == 1 & buffer[i] == '\n')
+                {
+                    write_to_file = 0;
+                    fclose(to_write);
+                    break;
+                }
+                fputc(buffer[i], to_write);
+            }
+        }
+
+        /* 6.a.b Perform taks depending on the input from the client*/
         if (strncmp("BYE", buffer, 3) == 0)
         {
             printf("Closing server\n");
             return;
         }
-
-        if (strncmp("GET", buffer, 3) == 0)
+        else if (strncmp("GET", buffer, 3) == 0)
         {
 
-            FILE *to_send;
             char c;
             int count = 0;
             char file_name[MAX];
 
             //Iterate from from the start of the filename
-            for (int i = 0; i < MAX; i++)
+            for (int i = 0; i < strlen(buffer); i++)
             {
-                char buffer_c = buffer[i + 4];
-                if (buffer_c == '\0')
-                {
-                    break;
-                }
-                file_name[i] = c;
+                file_name[i] = buffer[i + 4];
             }
+            //Set filename as a string
+            file_name[strlen(file_name) - 1] = '\0';
+            bzero(buffer, MAX);
 
-            printf("File Name: ||%s||\n ", file_name);
-
+            //Open the file or send an error if the input is incorrect
             to_send = fopen(file_name, "r");
-            if (sizeof(file_name) == 0)
+            if (strlen(file_name) == 0)
             {
                 strcat(buffer, "SERVER 500 Not Found\n");
             }
@@ -169,20 +184,54 @@ void read_write(int sock)
             {
                 strcat(buffer, "SERVER 404 Not Found\n");
             }
-
             else
             {
-                int count_to_send = 0;
+                strcat(buffer, "SERVER 200 OK\n\n");
+
+                //Copy the content of the file into the buffer
+                int count_to_send = strlen(buffer);
                 while ((c = fgetc(to_send)) != EOF)
                 {
                     buffer[count_to_send] = c;
                     count_to_send++;
                 }
-                write(sock, buffer, sizeof(c));
+                strcat(buffer, "\n\n");
             }
         }
+        /* 6.c Write to a file */
+        else if (strncmp("PUT", buffer, 3) == 0)
+        {
+            char c;
+            int count = 0;
+            char file_write_name[MAX];
 
+            //Iterate from from the start of the filename
+            for (int i = 0; i < strlen(buffer); i++)
+            {
+                file_write_name[i] = buffer[i + 4];
+            }
+            //Set filename as a string
+            file_write_name[strlen(file_write_name) - 1] = '\0';
+            bzero(buffer, MAX);
+
+            //Open the file for writing or send an error if the input is incorrect
+            to_write = fopen(file_write_name, "w");
+            if (to_write == NULL)
+            {
+                strcat(buffer, "SERVER 501 Put Error\n");
+            }
+            else
+            {
+                write_to_file = 1;
+            }
+        }
+        //Clear the buffer
+        else
+        {
+            bzero(buffer, MAX);
+        }
+
+        //Write to client
         write(sock, buffer, sizeof(buffer));
-        bzero(buffer, MAX);
     }
 }
