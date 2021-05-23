@@ -31,6 +31,7 @@
  * design specifications.
  */
 void read_write(int sock);
+void get_file(char buffer[], FILE *to_send);
 /*
 * Method for printing erros
 */
@@ -187,44 +188,8 @@ void read_write(int sock)
         }
         else if (strncmp("GET", buffer, 3) == 0)
         {
-
-            char c;
-            char file_name[MAX];
-
-            //Iterate from from the start of the filename
-            for (int i = 0; i < strlen(buffer); i++)
-            {
-                file_name[i] = buffer[i + 4];
-            }
-            //Set filename as a string
-            file_name[strlen(file_name) - 1] = '\0';
-            bzero(buffer, MAX);
-
-            //Open the file or send an error if the input is incorrect
-            to_send = fopen(file_name, "r");
-            if (strlen(file_name) == 0)
-            {
-                strcat(buffer, "SERVER 500 Not Found\n");
-            }
-            else if (to_send == NULL)
-            {
-                strcat(buffer, "SERVER 404 Not Found\n");
-            }
-            else
-            {
-                strcat(buffer, "SERVER 200 OK\n\n");
-
-                //Copy the content of the file into the buffer
-                int count_to_send = strlen(buffer);
-                while ((c = fgetc(to_send)) != EOF)
-                {
-                    buffer[count_to_send] = c;
-                    count_to_send++;
-                }
-                strcat(buffer, "\n\n");
-                //Close file
-                fclose(to_send);
-            }
+            //Call the get file method
+            get_file(buffer, to_send);
         }
         /* 6.c Write to a file */
         else if (strncmp("PUT", buffer, 3) == 0)
@@ -260,5 +225,50 @@ void read_write(int sock)
 
         //Write to client
         write(sock, buffer, sizeof(buffer));
+    }
+}
+
+/*
+* This function is used to get take a file requested by the user and print it to the client
+*/
+void get_file(char buffer[], FILE *to_send)
+{
+    char c;
+    char file_name[MAX];
+
+    //Iterate from from the start of the filename
+    for (int i = 0; i < strlen(buffer); i++)
+    {
+        file_name[i] = buffer[i + 4];
+    }
+    //Set filename as a string
+    file_name[strlen(file_name) - 1] = '\0';
+    bzero(buffer, MAX);
+
+    //Open the file or send an error if the input is incorrect
+    to_send = fopen(file_name, "r");
+    if (strlen(file_name) == 0)
+    {
+        strcat(buffer, "SERVER 500 Not Found\n");
+    }
+    else if (to_send == NULL)
+    {
+        strcat(buffer, "SERVER 404 Not Found\n");
+    }
+    else
+    {
+        strcat(buffer, "SERVER 200 OK\n\n");
+
+        //Copy the content of the file into the buffer
+        int count_to_send = strlen(buffer);
+        while ((c = fgetc(to_send)) != EOF)
+        {
+            buffer[count_to_send] = c;
+            count_to_send++;
+        }
+        //Add a newline after the text then 2 more
+        strcat(buffer, "\n\n\n");
+        //Close file
+        fclose(to_send);
     }
 }

@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/leon/Documents/GitHub/NWEN241/Practise/week 10/Time.cpp
+Time.h
+/Users/leon/Documents/GitHub/NWEN241/Practise/week 10/Time.h
+
+/Users/leon/Documents/GitHub/NWEN241/Practise/week 10/Time.h
+
+/Users/leon/Documents/GitHub/NWEN241/Practise/week 10/main.cpp
+iostream
+-
+Time.h
+/Users/leon/Documents/GitHub/NWEN241/Practise/week 10/Time.h
+iostream
+-
+string
+-
+
